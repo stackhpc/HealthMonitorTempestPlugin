@@ -21,3 +21,15 @@ class BaseHealthCheck(tempest.test.BaseTestCase):
 
         if not CONF.service_available.nova:
             raise cls.skipException("Nova is not available, cannot perform Health Check")
+    
+    @classmethod
+    def skip_checks(cls):
+        super(BaseHealthCheck,cls).skip_checks()
+
+    @classmethod
+    def resource_setup(cls):
+        super(BaseHealthCheck, cls).resource_setup()
+
+    @classmethod
+    def resource_cleanup(cls):
+        super(BaseHealthCheck, cls).resource_cleanup()
