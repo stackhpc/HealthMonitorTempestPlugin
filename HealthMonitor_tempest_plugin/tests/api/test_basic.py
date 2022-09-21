@@ -4,6 +4,11 @@ import time
 
 import testtools
 
+from tempest import config
+
+CONF = config.CONF
+
+
 class BasicTest(BaseHealthCheck):
 
     def __init__(self, *args, **kwargs):
@@ -11,7 +16,10 @@ class BasicTest(BaseHealthCheck):
 
     @testtools.testcase.attr('positive')
     def test_basic(self):
-        resp = self.manager.servers_client.create_server(name='test-server', imageRef='ba111615-c4ab-49ed-9abe-73841c6f0029', flavorRef='1', networks=[{'uuid': '3c187a9a-778e-46d5-83d0-2c35207b1f39'}]);
-        print(resp)
+        resp = self.manager.servers_client.create_server(name='test-server', imageRef=CONF.compute.image_ref, flavorRef=CONF.compute.flavor_ref, networks=[{'uuid': CONF.network.public_network_id}]);
+        print('server_id :',resp['server']['id'])
+        print('---------------------------')
+        print()
+        resp2 = self.manager.servers_client.delete_server(resp['server']['id'])
         self.assertEqual('yes','yes');
         

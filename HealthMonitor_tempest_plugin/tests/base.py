@@ -8,11 +8,10 @@ CONF = config.CONF
 
 class BaseHealthCheck(tempest.test.BaseTestCase):
 
-    LOG = logging.getLogger(__name__)
-
     def __init__(self, *args, **kwargs):
         super(BaseHealthCheck, self).__init__(*args, **kwargs)
         self.manager = Manager()
+        self.LOG = logging.getLogger(__name__)
 
     @classmethod
     def skip_checks(cls):
