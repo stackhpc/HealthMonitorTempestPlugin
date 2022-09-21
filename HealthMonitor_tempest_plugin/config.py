@@ -15,11 +15,11 @@
 
 from tempest.config import cfg
 
-health_mon_group = cfg.OptGroup(name='health-monitor',
-                                title='health monitor options')
+service_available_grup = cfg.OptGroup(name="service_available",
+                                title="Available OpenStack Services")
 
-HealthMonGroup =  [
-    cfg.StrOpt('placeholder',
-                default='nothing',
+ServiceAvailableGroup =  [
+    cfg.StrOpt("HealthMonitor",
+                default=True,
                 help='i may need something here')
 ]

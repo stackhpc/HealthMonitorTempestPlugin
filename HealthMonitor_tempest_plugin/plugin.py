@@ -32,12 +32,9 @@ class HealthMonitorPlugin(plugins.TempestPlugin):
 
     def register_opts(self, conf):
         
-        conf.register_group(project_config.HealthMonGroup)
-        
-        conf.register_opt(project_config.HealthMonGroup,
-                          project_config.health_mon_group)
+        conf.register_opt_group(conf, project_config.service_available_grup, project_config.ServiceAvailableGroup)
 
     def get_opt_lists(self):
         return [
-            (project_config.health_mon_group.name, project_config.HealthMonGroup)
+            (project_config.service_available_grup.name, project_config.ServiceAvailableGroup)
         ]
