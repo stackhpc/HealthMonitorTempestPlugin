@@ -31,7 +31,13 @@ class HealthMonitorPlugin(plugins.TempestPlugin):
         return full_test_dir, base_path
 
     def register_opts(self, conf):
-        pass
+        
+        conf.register_group(project_config.HealthMonGroup)
+        
+        conf.register_opt(project_config.HealthMonGroup,
+                          project_config.health_mon_group)
 
     def get_opt_lists(self):
-        pass
+        return [
+            (project_config.health_mon_group.name, project_config.HealthMonGroup)
+        ]

@@ -13,3 +13,13 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+from tempest.config import cfg
+
+health_mon_group = cfg.OptGroup(name='health-monitor',
+                                title='health monitor options')
+
+HealthMonGroup =  [
+    cfg.StrOpt('placeholder',
+                default='nothing',
+                help='i may need something here')
+]
