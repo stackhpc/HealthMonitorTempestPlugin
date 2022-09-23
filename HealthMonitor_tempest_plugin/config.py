@@ -24,7 +24,7 @@ ServiceAvailableGroup = [
                 help="Whether nova is expected to be available"),
 ]
 
-health_mon_group = cfg.OptGroup(name="Health Monitor",
+health_mon_group = cfg.OptGroup(name="healthmon",
                                 title="Health Monitor Options")
 
 HealthMonitorGroup =  [
@@ -39,6 +39,9 @@ HealthMonitorGroup =  [
                 help='A list of flavors compatible with the alternative images provided'),
 
     cfg.StrOpt("images_alt",
-                help='A list of images compatible with the alternative flavors provided')
+                help='A list of images compatible with the alternative flavors provided'),
+    
+    cfg.StrOpt("ssh_users",
+                help='corresponding ssh users for images - must be in order')
 
 ]

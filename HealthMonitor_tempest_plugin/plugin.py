@@ -19,7 +19,7 @@ import os
 from tempest import config
 from tempest.test_discover import plugins
 
-from HealthMonitor_tempest_plugin import config as project_config
+from HealthMonitor_tempest_plugin import config as healthmon_config
 
 
 class HealthMonitorPlugin(plugins.TempestPlugin):
@@ -32,12 +32,13 @@ class HealthMonitorPlugin(plugins.TempestPlugin):
 
     def register_opts(self, conf):
         
-        conf.register_opt_group(conf, project_config.service_available_group, project_config.ServiceAvailableGroup)
-        #conf.register_opt_group(conf,project_config.health_mon_group, project_config.HealthMonitorGroup)
+        #config.register_opt_group(conf, healthmon_config.service_available_group, healthmon_config.ServiceAvailableGroup)
+
+        config.register_opt_group(conf,healthmon_config.health_mon_group, healthmon_config.HealthMonitorGroup)
 
     def get_opt_lists(self):
         return [
-            #(project_config.health_mon_group.name, project_config.HealthMonitorGroup),
-            (project_config.service_available_group.name, project_config.ServiceAvailableGroup)
+            (healthmon_config.health_mon_group.name, healthmon_config.HealthMonitorGroup),
+            #(healthmon_config.service_available_group.name, healthmon_config.ServiceAvailableGroup)
 
         ]
