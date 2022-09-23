@@ -82,6 +82,21 @@ class BaseHealthCheck(tempest.test.BaseTestCase):
 
         return self.manager.flavors_client.show_flavor(id)['flavor']['name']
 
+    def clean_up_server(self,server_id,SERVER_NAME,KEYPAIR_NAME, fip_id=None, fip=None):
+
+        LOG.info('Test finished, cleaning up...')
+
+        self.manager.servers_client.delete_server(server_id)
+        LOG.info('Deleted server "%s"',SERVER_NAME)
+
+        self.manager.keypairs_client.delete_keypair(KEYPAIR_NAME)
+        LOG.info('Deleted keypair "%s"',KEYPAIR_NAME)
+
+        if fip_id:
+            self.manager.floating_ips_client.delete_floatingip(fip_id)
+            LOG.info('Deleted floating ip %s',fip)
+
+
     def create_server_and_get_ssh(self,ssh_user,image,flavor):
 
         SERVER_NAME = data_utils.rand_name(name='server',prefix='healthmon')
@@ -119,6 +134,13 @@ class BaseHealthCheck(tempest.test.BaseTestCase):
                 t2 = time.perf_counter()
                 tenant_id = r['server']['tenant_id']
                 break
+            elif r['server']['status'] == "ERROR":
+                LOG.error("Fatal: Server Status ERROR")
+                LOG.error('reason: "%s"',r['server']['fault']['message'])
+                LOG.error('details: %s',r['server']['fault']['details'])
+                LOG.error("test failed for image '%s' and flavor '%s'",IMG_NAME,FLV_NAME)
+                self.clean_up_server(id,SERVER_NAME,KEYPAIR_NAME)
+                return
             else:
                 time.sleep(CONF.compute.ready_wait)
         LOG.info("Got server status ready")
@@ -170,11 +192,4 @@ class BaseHealthCheck(tempest.test.BaseTestCase):
         client.validate_authentication()
         LOG.info('SSH test for image "%s" and flavor "%s" succeeded!',IMG_NAME,FLV_NAME)
         LOG.info('---------------------------')
-        LOG.info('Test finished, cleaning up...')
-
-        self.manager.servers_client.delete_server(id)
-        LOG.info('Deleted server "%s"',SERVER_NAME)
-        self.manager.keypairs_client.delete_keypair(KEYPAIR_NAME)
-        LOG.info('Deleted keypair "%s"',KEYPAIR_NAME)
-        self.manager.floating_ips_client.delete_floatingip(fip_id)
-        LOG.info('Deleted floating ip %s',fip)
+        self.clean_up_server(id,SERVER_NAME,KEYPAIR_NAME,fip_id,fip)
