@@ -9,7 +9,6 @@ from tempest.lib.common.utils import data_utils
 from tempest.lib.common.utils.linux import remote_client 
 
 import sys 
-
 import time
 
 from HealthMonitor_tempest_plugin.common.manager import Manager 
@@ -28,7 +27,7 @@ LOG.addHandler(handler)
 class BaseHealthCheck(tempest.test.BaseTestCase):
 
     def __init__(self, *args, **kwargs):
-        super(BaseHealthCheck, self).__init__(*args, **kwargs)
+        super(BaseHealthCheck, self).__init__(*args, **kwargs)  
         self.manager = Manager()
 
     @classmethod
@@ -76,10 +75,22 @@ class BaseHealthCheck(tempest.test.BaseTestCase):
 
         return port_map[0]
 
-    def create_server_and_get_ssh(self,image,flavor):
+    def get_image(self,id):
+        return self.manager.image_client_v2.show_image(id)['name']
+
+    def get_flavor(self,id):
+
+        return self.manager.flavors_client.show_flavor(id)['flavor']['name']
+
+    def create_server_and_get_ssh(self,ssh_user,image,flavor):
 
         SERVER_NAME = data_utils.rand_name(name='server',prefix='healthmon')
         KEYPAIR_NAME = data_utils.rand_name(name='keypair',prefix='healthmon')
+
+        IMG_NAME = self.get_image(image)
+        FLV_NAME = self.get_flavor(flavor)
+
+        LOG.info('PERFORMING BASIC SSH TEST WITH IMAGE "%s" AND FLAVOR "%s"',IMG_NAME,FLV_NAME)
 
         r = self.manager.keypairs_client.create_keypair(name=KEYPAIR_NAME)
         pk = r['keypair']['private_key']
@@ -153,11 +164,11 @@ class BaseHealthCheck(tempest.test.BaseTestCase):
 
         #establish ssh connection
         LOG.info('Starting SSH connection ...')
-        LOG.info('Using ip %s, username "%s"',ipv4, CONF.validation.image_ssh_user)
+        LOG.info('Using ip %s, username "%s"',ipv4, ssh_user)
         #password is temporary measure for cirros issue, need to remove this when possible
-        client = remote_client.RemoteClient(ipv4, CONF.validation.image_ssh_user, pkey=pk, password='gocubsgo',ssh_key_type='ecdsa')
+        client = remote_client.RemoteClient(ipv4, ssh_user, pkey=pk, password='gocubsgo',ssh_key_type='ecdsa')
         client.validate_authentication()
-        LOG.info('SSH succeeded!')
+        LOG.info('SSH test for image "%s" and flavor "%s" succeeded!',IMG_NAME,FLV_NAME)
         LOG.info('---------------------------')
         LOG.info('Test finished, cleaning up...')
 
