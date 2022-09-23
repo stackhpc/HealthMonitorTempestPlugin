@@ -3,6 +3,8 @@ from re import S
 from termios import TAB2
 from HealthMonitor_tempest_plugin.tests.base import BaseHealthCheck
 
+from tempest.lib.common.utils import data_utils
+
 from tempest.lib.common.utils.linux import remote_client 
 import sys
 import time
@@ -14,8 +16,8 @@ from tempest import config
 
 CONF = config.CONF
 
-DEFAULT_SERVER_NAME = 'test-server'
-DEFAULT_KEYPAIR_NAME = 'yeet'
+DEFAULT_SERVER_NAME = data_utils.rand_name(name='server',prefix='healthmon')
+DEFAULT_KEYPAIR_NAME = data_utils.rand_name(name='keypair',prefix='healthmon')
 
 #setup logging to output to console
 LOG = logging.getLogger(__name__)
@@ -38,7 +40,7 @@ class BasicTest(BaseHealthCheck):
         r = self.manager.keypairs_client.create_keypair(name=DEFAULT_KEYPAIR_NAME)
         pk = r['keypair']['private_key']
         pubk = r['keypair']['public_key']
-        LOG.info("Generated SSH keypair...")
+        LOG.info("Generated SSH keypair '%s'",DEFAULT_KEYPAIR_NAME)
         LOG.info("pub_key: %s",pubk)
         
         LOG.info('Creating server...')
@@ -65,7 +67,7 @@ class BasicTest(BaseHealthCheck):
             else:
                 time.sleep(CONF.compute.ready_wait)
         LOG.info("Got server status ready")
-        LOG.info('Time to complete (note: this time is affected by the polling period "ready_wait" configured in tempest (/etc/tempest.conf)): {:3.4f}s'.format(t2-t1))
+        LOG.info('Time to complete (note: this time may be affected by the polling period "ready_wait" configured in tempest (/etc/tempest.conf)): {:3.4f}s'.format(t2-t1))
         LOG.info('---------------------------')
         
         LOG.info("Attempting to ssh into server...")
@@ -104,21 +106,6 @@ class BasicTest(BaseHealthCheck):
             LOG.info('Created new floating ip %s on network "%s" bound to server "%s" with ip %s in project "%s"',fip,net_name,name,fxp,project_name)
 
             ipv4 = fip
-            LOG.info('Waiting for floating ip to become active...')
-            t1 = time.perf_counter()
-            while True:
-                r = self.manager.floating_ips_client.show_floatingip(fip_id)
-                LOG.info("Polling...")
-                LOG.info('STATUS: %s',r['floatingip']['status'])
-                if r['floatingip']['status'] == "ACTIVE":
-                    t2 = time.perf_counter()
-                    break
-                else:
-                    time.sleep(CONF.compute.ready_wait)
-            
-            LOG.info("Got server status ready")
-            LOG.info('Time to complete (note: this time is affected by the polling period "ready_wait" configured in tempest (/etc/tempest.conf)): {:3.4f}s'.format(t2-t1))
-            LOG.info('---------------------------')
 
         #establish ssh connection
         LOG.info('Starting SSH connection ...')
@@ -132,6 +119,8 @@ class BasicTest(BaseHealthCheck):
 
         self.manager.servers_client.delete_server(id)
         LOG.info('Deleted server "%s"',DEFAULT_SERVER_NAME)
-        self.manager.keypairs_client.delete_keypair('yeet')
+        self.manager.keypairs_client.delete_keypair(DEFAULT_KEYPAIR_NAME)
         LOG.info('Deleted keypair "%s"',DEFAULT_KEYPAIR_NAME)
+        self.manager.floating_ips_client.delete_floatingip(fip_id)
+        LOG.info('Deleted floating ip %s',fip)
         
