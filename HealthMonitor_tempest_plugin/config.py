@@ -15,11 +15,30 @@
 
 from tempest.config import cfg
 
-service_available_grup = cfg.OptGroup(name="service_available",
-                                title="Available OpenStack Services")
+service_available_group = cfg.OptGroup(name="service_available",
+                                       title="Available OpenStack Services")
 
-ServiceAvailableGroup =  [
-    cfg.StrOpt("HealthMonitor",
+ServiceAvailableGroup = [
+    cfg.BoolOpt("nova",
                 default=True,
-                help='i may need something here')
+                help="Whether nova is expected to be available"),
+]
+
+health_mon_group = cfg.OptGroup(name="Health Monitor",
+                                title="Health Monitor Options")
+
+HealthMonitorGroup =  [
+
+    cfg.StrOpt("flavors",
+                help='A list of flavors compatible with the images provided'),
+
+    cfg.StrOpt("images",
+                help='A list of images compatible with the flavors provided'),
+
+    cfg.StrOpt("flavors_alt",
+                help='A list of flavors compatible with the alternative images provided'),
+
+    cfg.StrOpt("images_alt",
+                help='A list of images compatible with the alternative flavors provided')
+
 ]
