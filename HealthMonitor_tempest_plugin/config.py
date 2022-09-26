@@ -42,6 +42,8 @@ HealthMonitorGroup =  [
                 help='A list of images compatible with the alternative flavors provided'),
     
     cfg.StrOpt("ssh_users",
+                help='corresponding ssh users for images - must be in order'),
+    cfg.StrOpt("ssh_users_alt",
                 help='corresponding ssh users for images - must be in order')
 
 ]
