@@ -12,6 +12,7 @@ import sys
 import time
 
 from HealthMonitor_tempest_plugin.common.manager import Manager 
+from HealthMonitor_tempest_plugin.common.utils import get_flavor,get_image
 
 CONF = config.CONF
 
@@ -75,12 +76,7 @@ class BaseHealthCheck(tempest.test.BaseTestCase):
 
         return port_map[0]
 
-    def get_image(self,id):
-        return self.manager.image_client_v2.show_image(id)['name']
 
-    def get_flavor(self,id):
-
-        return self.manager.flavors_client.show_flavor(id)['flavor']['name']
 
     def clean_up_server(self,server_id,SERVER_NAME,KEYPAIR_NAME, fip_id=None, fip=None):
 
@@ -102,10 +98,12 @@ class BaseHealthCheck(tempest.test.BaseTestCase):
         SERVER_NAME = data_utils.rand_name(name='server',prefix='healthmon')
         KEYPAIR_NAME = data_utils.rand_name(name='keypair',prefix='healthmon')
 
-        IMG_NAME = self.get_image(image)
-        FLV_NAME = self.get_flavor(flavor)
+        IMG_NAME = get_image(image)
+        FLV_NAME = get_flavor(flavor)
 
         LOG.info('PERFORMING BASIC SSH TEST WITH IMAGE "%s" AND FLAVOR "%s"',IMG_NAME,FLV_NAME)
+
+        sshtime = time.perf_counter()
 
         r = self.manager.keypairs_client.create_keypair(name=KEYPAIR_NAME)
         pk = r['keypair']['private_key']
@@ -140,7 +138,7 @@ class BaseHealthCheck(tempest.test.BaseTestCase):
                 LOG.error('details: %s',r['server']['fault']['details'])
                 LOG.error("test failed for image '%s' and flavor '%s'",IMG_NAME,FLV_NAME)
                 self.clean_up_server(id,SERVER_NAME,KEYPAIR_NAME)
-                return
+                return (False,0)
             else:
                 time.sleep(CONF.compute.ready_wait)
         LOG.info("Got server status ready")
@@ -190,6 +188,9 @@ class BaseHealthCheck(tempest.test.BaseTestCase):
         #password is temporary measure for cirros issue, need to remove this when possible
         client = remote_client.RemoteClient(ipv4, ssh_user, pkey=pk, password='gocubsgo',ssh_key_type='ecdsa')
         client.validate_authentication()
+        sshtime2 = time.perf_counter()
         LOG.info('SSH test for image "%s" and flavor "%s" succeeded!',IMG_NAME,FLV_NAME)
         LOG.info('---------------------------')
         self.clean_up_server(id,SERVER_NAME,KEYPAIR_NAME,fip_id,fip)
+
+        return (True,sshtime2-sshtime)
