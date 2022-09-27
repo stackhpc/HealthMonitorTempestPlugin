@@ -38,9 +38,6 @@ class BasicTest(manager.ScenarioTest):
     
     @classmethod
     def skip_checks(cls):
-        print("CREDENTIALS:")
-        print("___--___________")
-        print(cls.credentials)
         super(BasicTest,cls).skip_checks()
 
     def verify_ssh(self, keypair):
@@ -105,6 +102,6 @@ class BasicTest(manager.ScenarioTest):
 
                     pass
         
-        LOG.debug(gen_report(runs,runs_alt))
+        LOG.info(gen_report(runs,runs_alt))
         
         
