@@ -1,8 +1,10 @@
-from math import frexp
-from re import S
-from termios import TAB2
-from HealthMonitor_tempest_plugin.tests.base import BaseHealthCheck
 from HealthMonitor_tempest_plugin.common.utils import gen_report
+
+from tempest.scenario import manager
+
+from tempest.lib import exceptions as lib_exc
+
+from tempest.common import waiters
 
 import sys
 
@@ -11,24 +13,54 @@ import logging
 
 from tempest import config
 
+import time
+
 CONF = config.CONF
 
 import re 
 
 #setup logging to output to console
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.INFO)
+LOG.setLevel(logging.DEBUG)
 handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.INFO)
+handler.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s - %(levelname)s : %(message)s')
 handler.setFormatter(formatter)
 LOG.addHandler(handler)
 
 
-class BasicTest(BaseHealthCheck):
+class BasicTest(manager.ScenarioTest):
 
-    def __init__(self, *args, **kwargs):
-        super(BasicTest,self).__init__(*args,**kwargs)
+    credentials=['primary']
+
+    def setUp(self):
+        super(BasicTest, self).setUp()
+    
+    @classmethod
+    def skip_checks(cls):
+        print("CREDENTIALS:")
+        print("___--___________")
+        print(cls.credentials)
+        super(BasicTest,cls).skip_checks()
+
+    def verify_ssh(self, keypair):
+        # Obtain a floating IP if floating_ips is enabled
+        if (CONF.network_feature_enabled.floating_ips and
+            CONF.network.floating_network_name):
+            fip = self.create_floating_ip(self.instance, external_network_id=CONF.network.floating_network_name)
+            self.ip = self.associate_floating_ip(
+                fip, self.instance)['floating_ip_address']
+        else:
+            server = self.servers_client.show_server(
+                self.instance['id'])['server']
+            self.ip = self.get_server_ip(server)
+        # Check ssh
+        self.ssh_client = self.get_remote_client(
+            ip_address=self.ip,
+            username=self.ssh_user,
+            private_key=keypair['private_key'],
+            server=self.instance)
+
 
     @testtools.testcase.attr('positive')
     def test_all_flavors_and_images(self):
@@ -44,17 +76,34 @@ class BasicTest(BaseHealthCheck):
                 for i,ssh_user in zip([i for i in list(filter(None,CONF.healthmon.images.split('\n'))) if not regex.match(i)],
                                       [s for s in list(filter(None,CONF.healthmon.ssh_users.split('\n'))) if not regex.match(s)]):
 
-                    success,time = self.create_server_and_get_ssh(ssh_user,i,f)
-                    runs.append((i,f,success,time))
+
+                    success=True
+                    time1 = time.perf_counter()
+                    keypair = self.create_keypair()
+                    security_group = self.create_security_group()
+                    self.ssh_user = ssh_user
+
+                    self.instance = self.create_server(image_id=i, flavor=f, key_name=keypair['name'],security_groups=[{'name':security_group['name']}],networks=[{'uuid': CONF.network.public_network_id}])
+                    self.verify_ssh(keypair)
+                    time2 = time.perf_counter()
+                    self.servers_client.delete_server(self.instance['id'])
+                    try:
+                        waiters.wait_for_server_termination(
+                        self.servers_client, self.instance['id'], ignore_error=False)
+                    except lib_exc.DeleteErrorException as e:
+                        LOG.warning("Failed to delete server : %s",str(e))
+                        success = False
+
+                    runs.append((i,f,success,time2-time1))
+                    
         if(CONF.healthmon.flavors_alt and CONF.healthmon.images_alt):
             for f in list(filter(None,CONF.healthmon.flavors_alt.split('\n'))):
 
                 for i,ssh_user in zip(list(filter(None,CONF.healthmon.images_alt.split('\n'))),
                                       list(filter(None,CONF.healthmon.ssh_users_alt.split('\n')))):
 
-                    success,time = self.create_server_and_get_ssh(ssh_user,i,f)
-                    runs_alt.append((i,f,success,time))
+                    pass
         
-        LOG.info(gen_report(runs,runs_alt))
+        LOG.debug(gen_report(runs,runs_alt))
         
         
