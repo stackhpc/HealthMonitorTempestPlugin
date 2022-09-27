@@ -76,7 +76,6 @@ class BasicTest(manager.ScenarioTest):
                 for i,ssh_user in zip([i for i in list(filter(None,CONF.healthmon.images.split('\n'))) if not regex.match(i)],
                                       [s for s in list(filter(None,CONF.healthmon.ssh_users.split('\n'))) if not regex.match(s)]):
 
-
                     success=True
                     time1 = time.perf_counter()
                     keypair = self.create_keypair()
@@ -94,7 +93,9 @@ class BasicTest(manager.ScenarioTest):
                         LOG.warning("Failed to delete server : %s",str(e))
                         success = False
 
-                    runs.append((i,f,success,time2-time1))
+                    runs.append((self.compute_images_client.show_image(i)['image']['name'],
+                                 self.flavors_client.show_flavor(f)['flavor']['name'],
+                                 success,time2-time1))
                     
         if(CONF.healthmon.flavors_alt and CONF.healthmon.images_alt):
             for f in list(filter(None,CONF.healthmon.flavors_alt.split('\n'))):
