@@ -1,16 +1,15 @@
 import logging
 import sys
 
+import json
+
 from tabulate import tabulate
+
+LOG_FILE = '/var/log/healthmon/healthmon.log'
 
 #setup logging to output to console
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.INFO)
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.INFO)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s : %(message)s')
-handler.setFormatter(formatter)
-LOG.addHandler(handler)
+
 
 def gen_report(runs,runs_alt):
 
@@ -25,3 +24,37 @@ def gen_report(runs,runs_alt):
         report += "No alternative runs performed"
 
     return report
+
+    """
+           runs.append((self.compute_images_client.show_image(i)['image']['name'],
+                                 self.flavors_client.show_flavor(f)['flavor']['name'],
+                                 success,time2-time1, details))
+    """
+
+def gen_json_report(runs,runs_alt):
+    
+    report = []
+
+    for i,r in enumerate(runs):
+        run = {}
+        run['image'] = r[0]
+        run['flavor'] = r[1]
+        run['success'] = r[2]
+        run['time'] = r[3]
+        run['error'] = r[4]
+        report.append(run)
+
+    for i,r in enumerate(runs_alt):
+        run = {}
+        run['image'] = r[0]
+        run['flavor'] = r[1]
+        run['success'] = r[2]
+        run['time'] = r[3]
+        run['error'] = r[4]
+        report.append(run)
+    
+    with open(LOG_FILE,'a') as f:
+        for r in report: 
+            f.write(json.dumps(r))
+            f.write('\n')
+    

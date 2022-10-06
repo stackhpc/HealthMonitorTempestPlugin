@@ -1,4 +1,4 @@
-from HealthMonitor_tempest_plugin.common.utils import gen_report
+from HealthMonitor_tempest_plugin.common.utils import gen_report,gen_json_report
 
 from tempest.scenario import manager
 
@@ -16,19 +16,12 @@ import logging
 from tempest import config
 
 import time
-
 CONF = config.CONF
 
 import re 
 
 #setup logging to output to console
 LOG = logging.getLogger(__name__)
-LOG.setLevel(logging.DEBUG)
-handler = logging.StreamHandler(sys.stdout)
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter('%(asctime)s - %(levelname)s : %(message)s')
-handler.setFormatter(formatter)
-LOG.addHandler(handler)
 
 
 class BasicTest(manager.ScenarioTest):
@@ -80,6 +73,7 @@ class BasicTest(manager.ScenarioTest):
                     keypair = self.create_keypair()
                     security_group = self.create_security_group()
                     self.ssh_user = ssh_user
+                    details = ""
 
                     try:
                         self.instance = self.create_server(image_id=i, flavor=f, key_name=keypair['name'],security_groups=[{'name':security_group['name']}],networks=[{'uuid': CONF.network.public_network_id}])
@@ -91,9 +85,11 @@ class BasicTest(manager.ScenarioTest):
                             self.servers_client, self.instance['id'], ignore_error=False)
                         except lib_exc.DeleteErrorException as e:
                             LOG.warning("Failed to delete server : %s",str(e))
+                            details += str(e)
                             success = False
                     except exceptions.BuildErrorException as e: 
                         LOG.error('Server build failed with message: %s',str(e))
+                        details += str(e)
                         success = False
                         time2 = time1
 
@@ -101,7 +97,7 @@ class BasicTest(manager.ScenarioTest):
 
                     runs.append((self.compute_images_client.show_image(i)['image']['name'],
                                  self.flavors_client.show_flavor(f)['flavor']['name'],
-                                 success,time2-time1))
+                                 success,time2-time1, details))
                     
         if(CONF.healthmon.flavors_alt and CONF.healthmon.images_alt):
             for f in list(filter(None,CONF.healthmon.flavors_alt.split('\n'))):
@@ -111,6 +107,6 @@ class BasicTest(manager.ScenarioTest):
 
                     pass
         
-        LOG.info(gen_report(runs,runs_alt))
+        gen_json_report(runs,runs_alt)
         
         
