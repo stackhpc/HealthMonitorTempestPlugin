@@ -29,7 +29,7 @@ def gen_report(runs,runs_alt):
                                  success,time2-time1, details))
 """
 
-def gen_json_report(runs,runs_alt):
+def gen_json_report(runs):
     
     report = []
 
