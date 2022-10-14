@@ -3,14 +3,14 @@ import sys
 
 import json
 
-from tabulate import tabulate
+#from tabulate import tabulate
 
 LOG_FILE = '/var/log/healthmon/healthmon.log'
 
 #setup logging to output to console
 LOG = logging.getLogger(__name__)
 
-
+"""
 def gen_report(runs,runs_alt):
 
     report="\n"
@@ -24,12 +24,10 @@ def gen_report(runs,runs_alt):
         report += "No alternative runs performed"
 
     return report
-
-    """
            runs.append((self.compute_images_client.show_image(i)['image']['name'],
                                  self.flavors_client.show_flavor(f)['flavor']['name'],
                                  success,time2-time1, details))
-    """
+"""
 
 def gen_json_report(runs,runs_alt):
     

@@ -1,4 +1,4 @@
-from health_monitor_tempest_plugin.common.utils import gen_report,gen_json_report
+from health_monitor_tempest_plugin.common.utils import gen_json_report
 
 from tempest.scenario import manager
 
