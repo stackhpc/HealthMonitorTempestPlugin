@@ -29,21 +29,21 @@ health_mon_group = cfg.OptGroup(name="healthmon",
 
 HealthMonitorGroup =  [
 
-    cfg.StrOpt("flavors",
+    cfg.MultiStrOpt("flavor",
                 help='A list of flavors compatible with the images provided'),
 
-    cfg.StrOpt("images",
+    cfg.MultiStrOpt("image",
                 help='A list of images compatible with the flavors provided'),
 
-    cfg.StrOpt("flavors_alt",
+    cfg.MultiStrOpt("flavor_alt",
                 help='A list of flavors compatible with the alternative images provided'),
 
-    cfg.StrOpt("images_alt",
+    cfg.MultiStrOpt("image_alt",
                 help='A list of images compatible with the alternative flavors provided'),
     
-    cfg.StrOpt("ssh_users",
+    cfg.MultiStrOpt("ssh_user",
                 help='corresponding ssh users for images - must be in order'),
-    cfg.StrOpt("ssh_users_alt",
+    cfg.MultiStrOpt("ssh_user_alt",
                 help='corresponding ssh users for images - must be in order')
 
 ]

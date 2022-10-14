@@ -54,6 +54,35 @@ class BasicTest(manager.ScenarioTest):
             private_key=keypair['private_key'],
             server=self.instance)
 
+    def create_server_and_check_connectivity(self,f,i,ssh_user):
+        success=True
+        time1 = time.perf_counter()
+        keypair = self.create_keypair()
+        security_group = self.create_security_group()
+        self.ssh_user = ssh_user
+        details = ""
+
+        try:
+            self.instance = self.create_server(image_id=i, flavor=f, key_name=keypair['name'],security_groups=[{'name':security_group['name']}],networks=[{'uuid': CONF.network.public_network_id}])
+            self.verify_ssh(keypair)
+            time2 = time.perf_counter()
+            self.servers_client.delete_server(self.instance['id'])
+            try:
+                waiters.wait_for_server_termination(
+                self.servers_client, self.instance['id'], ignore_error=False)
+            except lib_exc.DeleteErrorException as e:
+                LOG.warning("Failed to delete server : %s",str(e))
+                details += str(e)
+                success = False
+        except exceptions.BuildErrorException as e: 
+            LOG.error('Server build failed with message: %s',str(e))
+            details += str(e)
+            success = False
+            time2 = time1
+        
+        return (self.compute_images_client.show_image(i)['image']['name'],
+                self.flavors_client.show_flavor(f)['flavor']['name'],
+                success,datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),time2-time1, details)
 
     @testtools.testcase.attr('positive')
     def test_all_flavors_and_images(self):
@@ -61,53 +90,17 @@ class BasicTest(manager.ScenarioTest):
         regex = re.compile(r'#\S+')
 
         runs = []
-        runs_alt = []
 
-        if(CONF.healthmon.flavors and CONF.healthmon.images and CONF.healthmon.ssh_users):
-            for f in [f for f in list(filter(None,CONF.healthmon.flavors.split('\n'))) if not regex.match(f)]:
-
-                for i,ssh_user in zip([i for i in list(filter(None,CONF.healthmon.images.split('\n'))) if not regex.match(i)],
-                                      [s for s in list(filter(None,CONF.healthmon.ssh_users.split('\n'))) if not regex.match(s)]):
-
-                    success=True
-                    time1 = time.perf_counter()
-                    keypair = self.create_keypair()
-                    security_group = self.create_security_group()
-                    self.ssh_user = ssh_user
-                    details = ""
-
-                    try:
-                        self.instance = self.create_server(image_id=i, flavor=f, key_name=keypair['name'],security_groups=[{'name':security_group['name']}],networks=[{'uuid': CONF.network.public_network_id}])
-                        self.verify_ssh(keypair)
-                        time2 = time.perf_counter()
-                        self.servers_client.delete_server(self.instance['id'])
-                        try:
-                            waiters.wait_for_server_termination(
-                            self.servers_client, self.instance['id'], ignore_error=False)
-                        except lib_exc.DeleteErrorException as e:
-                            LOG.warning("Failed to delete server : %s",str(e))
-                            details += str(e)
-                            success = False
-                    except exceptions.BuildErrorException as e: 
-                        LOG.error('Server build failed with message: %s',str(e))
-                        details += str(e)
-                        success = False
-                        time2 = time1
-
+        if(CONF.healthmon.flavor and CONF.healthmon.image and CONF.healthmon.ssh_user):
+            for f in CONF.healthmon.flavor:
+                for i,ssh_user in zip(CONF.healthmon.image,CONF.healthmon.ssh_user):
+                    runs.append(self.create_server_and_check_connectivity(f,i,ssh_user))
                     
-
-                    runs.append((self.compute_images_client.show_image(i)['image']['name'],
-                                 self.flavors_client.show_flavor(f)['flavor']['name'],
-                                 success,datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),time2-time1, details))
-                    
-        if(CONF.healthmon.flavors_alt and CONF.healthmon.images_alt):
-            for f in list(filter(None,CONF.healthmon.flavors_alt.split('\n'))):
-
-                for i,ssh_user in zip(list(filter(None,CONF.healthmon.images_alt.split('\n'))),
-                                      list(filter(None,CONF.healthmon.ssh_users_alt.split('\n')))):
-
-                    pass
+        if(CONF.healthmon.flavor_alt and CONF.healthmon.image_alt and CONF.healthmon.ssh_user_alt):
+            for f in CONF.healthmon.flavor_alt:
+                for i,ssh_user in zip(CONF.healthmon.image_alt,CONF.healthmon.ssh_user_alt):
+                    runs.append(self.create_server_and_check_connectivity(f,i,ssh_user))
         
-        gen_json_report(runs,runs_alt)
+        gen_json_report(runs)
         
         

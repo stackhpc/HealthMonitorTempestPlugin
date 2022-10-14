@@ -43,15 +43,6 @@ def gen_json_report(runs,runs_alt):
         run['error'] = r[5]
         report.append(run)
 
-    for i,r in enumerate(runs_alt):
-        run = {}
-        run['image'] = r[0]
-        run['flavor'] = r[1]
-        run['success'] = r[2]
-        run['time'] = r[3]
-        run['runttime'] = r[4]
-        run['error'] = r[5]
-        report.append(run)
     
     with open(LOG_FILE,'a') as f:
         for r in report: 
