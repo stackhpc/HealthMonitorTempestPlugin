@@ -5,18 +5,15 @@ You will need to set some parameters in `etc/tempest.conf` in your local tempest
 Config for health monitor will look something like this:
 ```
 [healthmon]
-flavors =
-    abf8401b-f0f4-4c20-bdfa-5626bca8bf31
-    83eae2c4-967d-4a56-88ce-7da271b175ce
-images =
-    c4e90b35-dcc6-48fc-8776-ade99eb12ffe
-    580b618f-25b8-4c4b-b6f4-0d9d59596184 
-ssh_users = 
-    ubuntu
-    ubuntu
+image = d2ac6a57-3669-44aa-a9f3-9690647ad1c5
+ssh_user = cirros
+flavor = 1
+image = 580b618f-25b8-4c4b-b6f4-0d9d59596184
+ssh_user = ubuntu
+flavor = 2
 ```
 
-where `ssh_users` correspond to the images provided. HealthMonitor will run through all combinations of flavors and images. Additionally, you can set `flavors_alt`, `images_alt` and `ssh_users_alt` for a second group of compatible images/flavors that will also be run. 
+where `ssh_users` correspond to the images provided. It doesn't matter what order you put `flavor/image/ssh_user`, however the `ssh_user` that will be used for each image needs to be in the same order as the images (i.e. user `cirros` will be used for the image `d2ac...`, `ubuntu` will be used for image `580b...` etc). HealthMonitor will run through all combinations of flavors and images. Additionally, you can set `flavors_alt`, `images_alt` and `ssh_users_alt` for a second group of compatible images/flavors that will also be run. 
 
 `validation` will also need to be set in `tempest.conf`:
 ```
