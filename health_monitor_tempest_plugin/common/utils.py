@@ -1,11 +1,11 @@
 import logging
 import sys
-
+import os
 import json
 
 #from tabulate import tabulate
 
-LOG_FILE = '/var/log/healthmon/healthmon.log'
+LOG_FILE = os.environ.get('LOG_FILE', './healthmon.log')
 
 #setup logging to output to console
 LOG = logging.getLogger(__name__)
