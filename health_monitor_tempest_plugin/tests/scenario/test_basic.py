@@ -74,7 +74,7 @@ class BasicTest(manager.ScenarioTest):
                 LOG.warning("Failed to delete server : %s",str(e))
                 details += str(e)
                 success = False
-        except exceptions.BuildErrorException as e: 
+        except Exception as e: 
             LOG.error('Server build failed with message: %s',str(e))
             details += str(e)
             success = False
