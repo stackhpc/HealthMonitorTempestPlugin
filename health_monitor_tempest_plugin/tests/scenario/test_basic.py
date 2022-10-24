@@ -75,19 +75,16 @@ class BasicTest(manager.ScenarioTest):
                     details += str(e)
                     success = False
                     time2 = time1
-                    self.resource_cleanup()
             except Exception as e: 
                 LOG.error('Server build failed with message: %s',str(e))
                 details += str(e)
                 success = False
                 time2 = time1
-                self.resource_cleanup()
         except Exception as e:
             LOG.error('Resource creation failed with message: %s',str(e))
             details += str(e)
             success = False
             time2 = time1
-            self.resource_cleanup()
         
         return (self.compute_images_client.show_image(i)['image']['name'],
                 self.flavors_client.show_flavor(f)['flavor']['name'],
