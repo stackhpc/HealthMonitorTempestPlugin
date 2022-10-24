@@ -57,25 +57,31 @@ class BasicTest(manager.ScenarioTest):
     def create_server_and_check_connectivity(self,f,i,ssh_user):
         success=True
         time1 = time.perf_counter()
-        keypair = self.create_keypair()
-        security_group = self.create_security_group()
         self.ssh_user = ssh_user
         details = ""
-
-        try:
-            self.instance = self.create_server(image_id=i, flavor=f, key_name=keypair['name'],security_groups=[{'name':security_group['name']}],networks=[{'uuid': CONF.network.public_network_id}])
-            self.verify_ssh(keypair)
-            time2 = time.perf_counter()
-            self.servers_client.delete_server(self.instance['id'])
+        try: 
+            keypair = self.create_keypair()
+            security_group = self.create_security_group()
             try:
-                waiters.wait_for_server_termination(
-                self.servers_client, self.instance['id'], ignore_error=False)
-            except lib_exc.DeleteErrorException as e:
-                LOG.warning("Failed to delete server : %s",str(e))
+                self.instance = self.create_server(image_id=i, flavor=f, key_name=keypair['name'],security_groups=[{'name':security_group['name']}],networks=[{'uuid': CONF.network.public_network_id}])
+                self.verify_ssh(keypair)
+                time2 = time.perf_counter()
+                self.servers_client.delete_server(self.instance['id'])
+                try:
+                    waiters.wait_for_server_termination(
+                    self.servers_client, self.instance['id'], ignore_error=False)
+                except lib_exc.DeleteErrorException as e:
+                    LOG.warning("Failed to delete server : %s",str(e))
+                    details += str(e)
+                    success = False
+                    time2 = time1
+            except Exception as e: 
+                LOG.error('Server build failed with message: %s',str(e))
                 details += str(e)
                 success = False
-        except Exception as e: 
-            LOG.error('Server build failed with message: %s',str(e))
+                time2 = time1
+        except Exception as e:
+            LOG.error('Resource creation failed with message: %s',str(e))
             details += str(e)
             success = False
             time2 = time1
