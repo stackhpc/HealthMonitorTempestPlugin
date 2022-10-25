@@ -105,15 +105,15 @@ class BasicTest(manager.ScenarioTest):
 
         runs = []
 
-        if(CONF.healthmon.flavor and CONF.healthmon.image and CONF.healthmon.ssh_user):
-            for f in CONF.healthmon.flavor:
-                for i,ssh_user in zip(CONF.healthmon.image,CONF.healthmon.ssh_user):
-                    runs.append(self.create_server_and_check_connectivity(f,i,ssh_user))
+        if(CONF.healthmon.flavor and CONF.healthmon.image and CONF.healthmon.ssh_user):            
+            for i,ssh_user in zip(CONF.healthmon.image,CONF.healthmon.ssh_user):
+                for f in CONF.healthmon.flavor:
+                runs.append(self.create_server_and_check_connectivity(f,i,ssh_user))
                     
-        if(CONF.healthmon.flavor_alt and CONF.healthmon.image_alt and CONF.healthmon.ssh_user_alt):
-            for f in CONF.healthmon.flavor_alt:
-                for i,ssh_user in zip(CONF.healthmon.image_alt,CONF.healthmon.ssh_user_alt):
-                    runs.append(self.create_server_and_check_connectivity(f,i,ssh_user))
+        if(CONF.healthmon.flavor_alt and CONF.healthmon.image_alt and CONF.healthmon.ssh_user_alt):            
+            for i,ssh_user in zip(CONF.healthmon.image_alt,CONF.healthmon.ssh_user_alt):
+                for f in CONF.healthmon.flavor_alt:
+                runs.append(self.create_server_and_check_connectivity(f,i,ssh_user))
         
         gen_json_report(runs)
         
