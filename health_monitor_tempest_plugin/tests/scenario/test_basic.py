@@ -56,7 +56,7 @@ class BasicTest(manager.ScenarioTest):
             private_key=keypair['private_key'],
             server=self.instance)
 
-    def create_server_and_check_connectivity(self,f,i,ssh_user):
+    def create_server_and_check_connectivity(self,f,i,ssh_user,network):
         success=True
         self.ssh_user = ssh_user
         details = ""
@@ -66,7 +66,7 @@ class BasicTest(manager.ScenarioTest):
             keypair = self.create_keypair()
             security_group = self.create_security_group()
             try:
-                self.instance = self.create_server(image_id=i, flavor=f, key_name=keypair['name'],security_groups=[{'name':security_group['name']}],networks=[{'uuid': CONF.network.public_network_id}])
+                self.instance = self.create_server(image_id=i, flavor=f, key_name=keypair['name'],security_groups=[{'name':security_group['name']}],networks=[{'uuid': network}])
                 time_start_end = time.perf_counter()
                 self.verify_ssh(keypair)
                 time_ssh_end = time.perf_counter()
@@ -105,15 +105,21 @@ class BasicTest(manager.ScenarioTest):
 
         runs = []
 
-        if(CONF.healthmon.flavor and CONF.healthmon.image and CONF.healthmon.ssh_user):            
-            for i,ssh_user in zip(CONF.healthmon.image,CONF.healthmon.ssh_user):
-                for f in CONF.healthmon.flavor:
-                runs.append(self.create_server_and_check_connectivity(f,i,ssh_user))
-                    
+        if(CONF.healthmon.image and CONF.healthmon.ssh_user):     
+            if(CONF.healthmon.flavor):       
+                for i,ssh_user in zip(CONF.healthmon.image,CONF.healthmon.ssh_user):
+                    for f in CONF.healthmon.flavor:
+                    runs.append(self.create_server_and_check_connectivity(f,i,ssh_user,CONF.network.public_network_id))
+            
+            if(CONF.healthmon.bm_flavor):
+                for i,ssh_user in zip(CONF.healthmon.image,CONF.healthmon.ssh_user):
+                    for f in CONF.healthmon.bm_flavor:
+                    runs.append(self.create_server_and_check_connectivity(f,i,ssh_user,CONF.healthmon.bm_net_id))
+
         if(CONF.healthmon.flavor_alt and CONF.healthmon.image_alt and CONF.healthmon.ssh_user_alt):            
             for i,ssh_user in zip(CONF.healthmon.image_alt,CONF.healthmon.ssh_user_alt):
                 for f in CONF.healthmon.flavor_alt:
-                runs.append(self.create_server_and_check_connectivity(f,i,ssh_user))
+                runs.append(self.create_server_and_check_connectivity(f,i,ssh_user,CONF.network.public_network_id))
         
         gen_json_report(runs)
         
