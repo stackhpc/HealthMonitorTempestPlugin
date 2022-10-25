@@ -25,7 +25,12 @@ import re
 
 #setup logging to output to console
 LOG = logging.getLogger(__name__)
-
+LOG.setLevel(logging.INFO)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.INFO)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s : %(message)s')
+handler.setFormatter(formatter)
+LOG.addHandler(handler)
 
 class BasicTest(manager.ScenarioTest):
 
@@ -50,6 +55,7 @@ class BasicTest(manager.ScenarioTest):
                 self.instance['id'])['server']
             self.ip = self.get_server_ip(server)
         # Check ssh
+        LOG.info('trying to ssh')
         self.ssh_client = self.get_remote_client(
             ip_address=self.ip,
             username=self.ssh_user,
@@ -66,8 +72,10 @@ class BasicTest(manager.ScenarioTest):
             keypair = self.create_keypair()
             security_group = self.create_security_group()
             try:
+                LOG.info('creating server')
                 self.instance = self.create_server(image_id=i, flavor=f, key_name=keypair['name'],security_groups=[{'name':security_group['name']}],networks=[{'uuid': network}])
                 time_start_end = time.perf_counter()
+                LOG.info('server up')
                 self.verify_ssh(keypair)
                 time_ssh_end = time.perf_counter()
                 self.servers_client.delete_server(self.instance['id'])
@@ -104,6 +112,8 @@ class BasicTest(manager.ScenarioTest):
         regex = re.compile(r'#\S+')
 
         runs = []
+
+        LOG.info('im here')
 
         if(CONF.healthmon.image and CONF.healthmon.ssh_user):     
             if(CONF.healthmon.flavor):       
