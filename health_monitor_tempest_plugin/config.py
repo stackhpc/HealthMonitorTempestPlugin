@@ -34,7 +34,7 @@ HealthMonitorGroup =  [
     cfg.MultiStrOpt("bm_flavor",
                 help='A list of flavors compatible with the images provided'),
     #temp - move this somewhere better
-    cfg.MultiStrOpt("bm_net_id",
+    cfg.StrOpt("bm_net_id",
                 help='A list of flavors compatible with the images provided'),
 
     cfg.MultiStrOpt("image",
