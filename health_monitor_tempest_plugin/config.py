@@ -31,6 +31,8 @@ HealthMonitorGroup =  [
 
     cfg.MultiStrOpt("flavor",
                 help='A list of flavors compatible with the images provided'),
+    cfg.MultiStrOpt("bm_flavor",
+                help='A list of flavors compatible with the images provided'),
 
     cfg.MultiStrOpt("image",
                 help='A list of images compatible with the flavors provided'),
