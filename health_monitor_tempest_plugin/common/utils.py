@@ -39,8 +39,9 @@ def gen_json_report(runs):
         run['flavor'] = r[1]
         run['success'] = r[2]
         run['time'] = r[3]
-        run['runttime'] = r[4]
-        run['error'] = r[5]
+        run['time_to_start'] = r[4]
+        run['time_to_ssh'] = r[5]
+        run['error'] = r[6]
         report.append(run)
 
     
