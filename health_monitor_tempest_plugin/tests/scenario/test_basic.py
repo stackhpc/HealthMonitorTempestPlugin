@@ -88,6 +88,12 @@ class BasicTest(manager.ScenarioTest):
                     success = False
                     time_ssh_end = time_ssh
                     time_start_end = time_start
+            except lib_exc.SSHTimeout:
+                LOG.error("Server SSH timed out")
+                details += str(e)
+                success = False
+                time_ssh_end = time_ssh
+                time_start_end = time_start
             except Exception as e: 
                 LOG.error('Server build failed with message: %s',str(e))
                 details += str(e)
