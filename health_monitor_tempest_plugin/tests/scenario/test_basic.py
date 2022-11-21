@@ -125,7 +125,7 @@ class BasicTest(manager.ScenarioTest):
         LOG.info('im here')
 
         with open('tests') as f:
-            with open('tests.pos') as id_f:
+            with open('tests.pos','w') as id_f:
                 id_x = int(id_f.readline())
                 total = 0
                 for i,line in enumerate(f):
