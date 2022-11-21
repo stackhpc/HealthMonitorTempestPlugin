@@ -32,7 +32,7 @@ def gen_report(runs,runs_alt):
 """
 
 def gen_runs_file(CONF):
-    with open('tests', 'w+') as f:
+    with open('tests', 'w+') as file:
         if(CONF.healthmon.image and CONF.healthmon.ssh_user):     
             if(CONF.healthmon.flavor):       
                 for i,ssh_user in zip(CONF.healthmon.image,CONF.healthmon.ssh_user):
@@ -41,7 +41,7 @@ def gen_runs_file(CONF):
                         data['image'] = i
                         data['ssh_user'] = ssh_user
                         data['flavor'] = f
-                        f.write(json.dumps(data, ensure_ascii=False, indent=4))
+                        json.dump(data, file, ensure_ascii=False)
 
 
         if(CONF.healthmon.flavor_alt and CONF.healthmon.image_alt and CONF.healthmon.ssh_user_alt):            
