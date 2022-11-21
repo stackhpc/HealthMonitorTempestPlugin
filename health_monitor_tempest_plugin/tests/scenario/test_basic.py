@@ -10,6 +10,8 @@ from tempest import exceptions
 
 import sys
 
+import json
+
 import testtools
 import logging
 
