@@ -127,11 +127,16 @@ class BasicTest(manager.ScenarioTest):
         with open('tests') as f:
             with open('tests.pos') as id_f:
                 id_x = int(f.readline())
+                total = 0
                 for i,line in enumerate(f):
+                    total += 1
                     if i == id_x:
                         data = json.loads(line)
                         runs.append(self.create_server_and_check_connectivity(data['flavor'],data['image'],data['ssh_user'],CONF.network.public_network_id))
-            
+                if id_f == total - 1:
+                    id_f.write('0')
+                else:
+                    id_f.write(str(id_x+1))
         gen_json_report(runs)
         
         
