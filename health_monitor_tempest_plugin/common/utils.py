@@ -32,32 +32,31 @@ def gen_report(runs,runs_alt):
 """
 
 def gen_runs_file(CONF):
-    if not exists('tests'):
-        with open('tests', 'w+') as f:
-            if(CONF.healthmon.image and CONF.healthmon.ssh_user):     
-                if(CONF.healthmon.flavor):       
-                    for i,ssh_user in zip(CONF.healthmon.image,CONF.healthmon.ssh_user):
-                        for f in CONF.healthmon.flavor:
-                            data = {}
-                            data['image'] = i
-                            data['ssh_user'] = ssh_user
-                            data['flavor'] = f
-                            f.write(json.dumps(data, ensure_ascii=False, indent=4))
+    with open('tests', 'w+') as f:
+        if(CONF.healthmon.image and CONF.healthmon.ssh_user):     
+            if(CONF.healthmon.flavor):       
+                for i,ssh_user in zip(CONF.healthmon.image,CONF.healthmon.ssh_user):
+                    for f in CONF.healthmon.flavor:
+                        data = {}
+                        data['image'] = i
+                        data['ssh_user'] = ssh_user
+                        data['flavor'] = f
+                        f.write(json.dumps(data, ensure_ascii=False, indent=4))
 
 
-            if(CONF.healthmon.flavor_alt and CONF.healthmon.image_alt and CONF.healthmon.ssh_user_alt):            
-                for i,ssh_user in zip(CONF.healthmon.image_alt,CONF.healthmon.ssh_user_alt):
-                    if(CONF.healthmon.flavor_alt):
-                        for f in CONF.healthmon.flavor_alt:
-                            data = {}
-                            data['image'] = i
-                            data['ssh_user'] = ssh_user
-                            data['flavor'] = f
-                            json.dumps(data, f, ensure_ascii=False, indent=4)
+        if(CONF.healthmon.flavor_alt and CONF.healthmon.image_alt and CONF.healthmon.ssh_user_alt):            
+            for i,ssh_user in zip(CONF.healthmon.image_alt,CONF.healthmon.ssh_user_alt):
+                if(CONF.healthmon.flavor_alt):
+                    for f in CONF.healthmon.flavor_alt:
+                        data = {}
+                        data['image'] = i
+                        data['ssh_user'] = ssh_user
+                        data['flavor'] = f
+                        json.dumps(data, f, ensure_ascii=False, indent=4)
 
     if not exists('tests.pos'):
         with open('tests.pos', 'w+') as f:
-            f.write('0')
+            f.write(str(0))
 
 def gen_json_report(runs):
     
