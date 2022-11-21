@@ -31,7 +31,7 @@ def gen_report(runs,runs_alt):
 
 def gen_runs_file(CONF):
     if not exists('tests'):
-        with open('myfile.dat', 'w+') as f:
+        with open('tests', 'w+') as f:
             if(CONF.healthmon.image and CONF.healthmon.ssh_user):     
                 if(CONF.healthmon.flavor):       
                     for i,ssh_user in zip(CONF.healthmon.image,CONF.healthmon.ssh_user):
@@ -54,7 +54,7 @@ def gen_runs_file(CONF):
                             json.dumps(data, f, ensure_ascii=False, indent=4)
 
     if not exists('tests.pos'):
-        with open('myfile.dat', 'w+') as f:
+        with open('tests.pos', 'w+') as f:
             f.write('0')
 
 def gen_json_report(runs):

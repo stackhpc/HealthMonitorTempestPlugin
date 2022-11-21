@@ -124,8 +124,8 @@ class BasicTest(manager.ScenarioTest):
 
         LOG.info('im here')
 
-        with open('myfile.dat') as f:
-            with open('myfile.txt') as id_f:
+        with open('tests') as f:
+            with open('tests.pos') as id_f:
                 id_x = int(f.readline())
                 for i,line in enumerate(f):
                     if i == id_x:
