@@ -42,7 +42,7 @@ def gen_runs_file(CONF):
                             data['image'] = i
                             data['ssh_user'] = ssh_user
                             data['flavor'] = f
-                            json.dumps(data, f, ensure_ascii=False, indent=4)
+                            f.write(json.dumps(data, ensure_ascii=False, indent=4))
 
 
             if(CONF.healthmon.flavor_alt and CONF.healthmon.image_alt and CONF.healthmon.ssh_user_alt):            
