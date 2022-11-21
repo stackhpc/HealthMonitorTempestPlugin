@@ -42,6 +42,7 @@ def gen_runs_file(CONF):
                         data['ssh_user'] = ssh_user
                         data['flavor'] = f
                         json.dump(data, file, ensure_ascii=False)
+                        file.write('\n')
 
 
         if(CONF.healthmon.flavor_alt and CONF.healthmon.image_alt and CONF.healthmon.ssh_user_alt):            
@@ -53,6 +54,7 @@ def gen_runs_file(CONF):
                         data['ssh_user'] = ssh_user
                         data['flavor'] = f
                         json.dump(data, file, ensure_ascii=False)
+                        file.write('\n')
 
     if not exists('tests.pos'):
         with open('tests.pos', 'w+') as f:
