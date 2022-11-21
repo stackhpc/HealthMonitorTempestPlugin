@@ -113,8 +113,28 @@ class BasicTest(manager.ScenarioTest):
             time_ssh_end = time_ssh
             time_start_end = time_start
         
-        return (self.compute_images_client.show_image(i)['image']['name'],
-                self.flavors_client.show_flavor(f)['flavor']['name'],
+        try:
+            image = self.compute_images_client.show_image(i)['image']['name']
+        except Exception as e:
+            image = 'N/A'
+            LOG.error('Resource creation failed with message: %s',str(e))
+            details += str(e)
+            success = False
+            time_ssh_end = time_ssh
+            time_start_end = time_start
+
+        try:
+            flavor = self.flavors_client.show_flavor(f)['flavor']['name']
+        except Exception as e:
+            flavor = 'N/A'
+            LOG.error('Resource creation failed with message: %s',str(e))
+            details += str(e)
+            success = False
+            time_ssh_end = time_ssh
+            time_start_end = time_start
+        
+        return (image,
+                flavor,
                 success,datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),time_start_end-time_start,time_ssh_end-time_ssh, details)
 
     @testtools.testcase.attr('positive')
