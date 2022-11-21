@@ -3,6 +3,8 @@ import sys
 import os
 import json
 
+from os.path import exists
+
 #from tabulate import tabulate
 
 LOG_FILE = os.environ.get('LOG_FILE', './healthmon.log')
