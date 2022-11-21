@@ -52,7 +52,7 @@ def gen_runs_file(CONF):
                         data['image'] = i
                         data['ssh_user'] = ssh_user
                         data['flavor'] = f
-                        json.dumps(data, f, ensure_ascii=False, indent=4)
+                        json.dump(data, file, ensure_ascii=False)
 
     if not exists('tests.pos'):
         with open('tests.pos', 'w+') as f:
