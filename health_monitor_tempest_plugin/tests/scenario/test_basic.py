@@ -147,18 +147,20 @@ class BasicTest(manager.ScenarioTest):
         LOG.info('im here')
 
         with open('tests') as f:
+            f = f.readlines()
+            total = len(f)
+            LOG.info("number of tests is "+str(total))
             with open('tests.pos','r+') as id_f:
                 id_x = int(id_f.readline())
-                total = 0
-                for i,line in enumerate(f):
-                    total += 1
-                    if i == id_x:
-                        data = json.loads(line)
-                        runs.append(self.create_server_and_check_connectivity(data['flavor'],data['image'],data['ssh_user'],CONF.network.public_network_id))
+                LOG.info("on test "+str(id_x))
+                data = json.loads(f[id_x])
+                runs.append(self.create_server_and_check_connectivity(data['flavor'],data['image'],data['ssh_user'],CONF.network.public_network_id))
                 if id_x == total - 1:
+                    LOG.info("resetting test count")
                     with open('tests.pos','w') as id_fx:
                         id_fx.write(str(0))
                 else:
+                    LOG.info("appending test count")
                     with open('tests.pos','w') as id_fx:
                         id_fx.write(str(id_x+1))
 
