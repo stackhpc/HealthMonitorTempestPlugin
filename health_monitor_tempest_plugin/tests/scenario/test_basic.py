@@ -93,7 +93,7 @@ class BasicTest(manager.ScenarioTest):
                     success = False
                     time_ssh_end = time_ssh
                     time_start_end = time_start
-            except lib_exc.SSHTimeout:
+            except lib_exc.SSHTimeout as e:
                 LOG.error("Server SSH timed out")
                 details += str(e)
                 success = False
